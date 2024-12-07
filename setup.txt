@@ -1,0 +1,25 @@
+sudo apt install apache2 php libapache2-mod-php git netpbm
+sudo a2enmod php8.1
+sudo apt install sane
+sudo adduser jax scanner
+sudo adduser www-data scanner
+
+// Edit /etc/udev/rules.d/55-libsane.rules
+// Add: SUBSYSTEM=="usb", ATTRS{idVendor}=="04a9", MODE="0660", GROUP="scanner", ENV{libsane_matched}="yes"
+sudo systemctl restart udev.service
+
+// Confirm that these tests work
+sane-find-scanner -q
+scanimage -L
+sudo su -m www-data -c 'scanimage --test'
+
+cd /var/www
+git clone https://github.com/gawindx/phpSane.git
+sudo chown -R root:www-data phpSane
+sudo chmod -R 775 phpSane
+
+sudo ufw allow 80/tcp
+sudo nano /etc/apache2/sites-available/000-default.conf
+// Adjust document root
+
+sudo service apache2 restart
